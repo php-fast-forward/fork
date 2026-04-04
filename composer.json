@@ -26,6 +26,7 @@
     },
     "require": {
         "php": "^8.3",
+        "ext-pcntl": "*",
         "psr/log": "^3.0"
     },
     "require-dev": {

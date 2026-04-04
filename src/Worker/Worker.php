@@ -35,6 +35,7 @@ use function ob_get_level;
 use function ob_start;
 use function pcntl_fork;
 use function posix_get_last_error;
+use function pcntl_waitpid;
 use function posix_kill;
 use function restore_error_handler;
 use function set_error_handler;
