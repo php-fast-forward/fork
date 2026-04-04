@@ -1,0 +1,17 @@
+name: "Fast Forward Reports"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  reports:
+    uses: php-fast-forward/dev-tools/.github/workflows/reports.yml@main
+    secrets: inherit

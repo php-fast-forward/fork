@@ -1,0 +1,70 @@
+{
+    "name": "fast-forward/fork",
+    "description": "A process manager for PHP that allows you to run multiple processes in parallel using the fork system call.",
+    "license": "MIT",
+    "type": "composer-plugin",
+    "keywords": [
+        "fast-forward",
+        "fork",
+        "parallel",
+        "concurrency",
+        "process",
+        "worker",
+        "manager",
+        "php"
+    ],
+    "authors": [
+        {
+            "name": "Felipe Sayão Lobato Abreu",
+            "email": "github@mentordosnerds.com"
+        }
+    ],
+    "homepage": "https://github.com/php-fast-forward/fork",
+    "support": {
+        "issues": "https://github.com/php-fast-forward/fork/issues",
+        "source": "https://github.com/php-fast-forward/fork"
+    },
+    "require": {
+        "php": "^8.3",
+        "psr/log": "^3.0"
+    },
+    "require-dev": {
+        "fast-forward/dev-tools": "dev-main"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "FastForward\\Fork\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "FastForward\\Fork\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true,
+            "fast-forward/dev-tools": true,
+            "phpdocumentor/shim": true,
+            "phpro/grumphp": true,
+            "pyrech/composer-changelogs": true
+        },
+        "platform": {
+            "php": "8.3.0"
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        },
+        "grumphp": {
+            "config-default-path": "vendor/fast-forward/dev-tools/grumphp.yml"
+        }
+    },
+    "scripts": {
+        "dev-tools": "dev-tools",
+        "dev-tools:fix": "@dev-tools --fix"
+    }
+}
