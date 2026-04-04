@@ -39,6 +39,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Log\LoggerInterface;
 
 use function getmypid;
+use function pcntl_fork;
 use function pcntl_waitpid;
 use function posix_kill;
 use function trigger_error;

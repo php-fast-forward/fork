@@ -21,6 +21,11 @@ namespace FastForward\Fork\Worker;
 use FastForward\Fork\Signal\Signal;
 use Psr\Log\LoggerInterface;
 
+use function pcntl_wifexited;
+use function pcntl_wifsignaled;
+use function pcntl_wexitstatus;
+use function pcntl_wtermsig;
+
 /**
  * Stores the mutable runtime state associated with a worker process.
  *

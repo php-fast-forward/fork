@@ -35,6 +35,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function getmypid;
+use function pcntl_fork;
 use function posix_getpid;
 use function posix_kill;
 use function usleep;
