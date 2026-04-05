@@ -2,7 +2,7 @@
     "name": "fast-forward/fork",
     "description": "A process manager for PHP that allows you to run multiple processes in parallel using the fork system call.",
     "license": "MIT",
-    "type": "composer-plugin",
+    "type": "library",
     "keywords": [
         "fast-forward",
         "fork",
