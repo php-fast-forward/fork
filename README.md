@@ -4,6 +4,7 @@ A PHP 8.3+ library for orchestrating forked workers with typed signals, immutabl
 captured worker output, and PSR-3 logging.
 
 [![PHP Version](https://img.shields.io/badge/php-^8.3-777BB4?logo=php&logoColor=white)](https://www.php.net/releases/)
+[![Composer Package](https://img.shields.io/badge/composer-fast--forward%2Ffork-F28D1A.svg?logo=composer&logoColor=white)](https://packagist.org/packages/fast-forward/fork)
 [![Tests](https://img.shields.io/github/actions/workflow/status/php-fast-forward/fork/tests.yml?logo=githubactions&logoColor=white&label=tests&color=22C55E)](https://github.com/php-fast-forward/fork/actions/workflows/tests.yml)
 [![Coverage](https://img.shields.io/badge/coverage-phpunit-4ADE80?logo=php&logoColor=white)](https://php-fast-forward.github.io/fork/coverage/index.html)
 [![Docs](https://img.shields.io/github/deployments/php-fast-forward/fork/github-pages?logo=readthedocs&logoColor=white&label=docs&labelColor=1E293B&color=38BDF8&style=flat)](https://php-fast-forward.github.io/fork/index.html)
@@ -187,36 +188,36 @@ posix_kill($manager->getMasterPid(), Signal::Terminate->value);
 
 ### Core classes
 
-| Class | Responsibility | Highlights |
-|--------|----------------|------------|
-| `FastForward\Fork\Manager\ForkManager` | Master orchestration | `fork()`, `wait()`, `kill()`, `getMasterPid()` |
-| `FastForward\Fork\Worker\Worker` | One forked worker | PID, exit code, termination signal, stdout, stderr |
-| `FastForward\Fork\Worker\WorkerGroup` | Immutable worker collection | `all()`, `get(pid)`, `getRunning()`, `getStopped()`, `wait()`, `kill()` |
-| `FastForward\Fork\Signal\Signal` | Typed POSIX signal enum | `Signal::Terminate`, `Signal::Kill`, `Signal::Interrupt`, `exitStatus()` |
-| `FastForward\Fork\Signal\DefaultSignalHandler` | Ready-made signal propagation strategy | Graceful propagation, optional wait, escalation support |
+| Class                                          | Responsibility                         | Highlights                                                               |
+|------------------------------------------------|----------------------------------------|--------------------------------------------------------------------------|
+| `FastForward\Fork\Manager\ForkManager`         | Master orchestration                   | `fork()`, `wait()`, `kill()`, `getMasterPid()`                           |
+| `FastForward\Fork\Worker\Worker`               | One forked worker                      | PID, exit code, termination signal, stdout, stderr                       |
+| `FastForward\Fork\Worker\WorkerGroup`          | Immutable worker collection            | `all()`, `get(pid)`, `getRunning()`, `getStopped()`, `wait()`, `kill()`  |
+| `FastForward\Fork\Signal\Signal`               | Typed POSIX signal enum                | `Signal::Terminate`, `Signal::Kill`, `Signal::Interrupt`, `exitStatus()` |
+| `FastForward\Fork\Signal\DefaultSignalHandler` | Ready-made signal propagation strategy | Graceful propagation, optional wait, escalation support                  |
 
 ### Main methods
 
-| Target | Method | Description |
-|--------|--------|-------------|
-| `ForkManager` | `fork(callable $callback, int $workerCount = 1)` | Spawn `N` workers for the same callback and return them as a group |
-| `ForkManager` | `wait(WorkerInterface\|WorkerGroupInterface ...$workers)` | Wait for targeted workers or every worker managed by the manager |
-| `ForkManager` | `kill(Signal $signal = Signal::Terminate, WorkerInterface\|WorkerGroupInterface ...$workers)` | Send a signal to targeted workers or all managed workers |
-| `Worker` | `wait()` | Wait for a single worker |
-| `Worker` | `kill()` | Signal a single worker |
-| `Worker` | `getOutput()` / `getErrorOutput()` | Read captured output, including partial output while still running |
-| `WorkerGroup` | `wait()` | Wait for every worker in the group |
-| `WorkerGroup` | `kill()` | Signal every worker in the group |
-| `WorkerGroup` | `getRunning()` / `getStopped()` | Inspect current group state |
+| Target        | Method                                                                                        | Description                                                        |
+|---------------|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+| `ForkManager` | `fork(callable $callback, int $workerCount = 1)`                                              | Spawn `N` workers for the same callback and return them as a group |
+| `ForkManager` | `wait(WorkerInterface\|WorkerGroupInterface ...$workers)`                                     | Wait for targeted workers or every worker managed by the manager   |
+| `ForkManager` | `kill(Signal $signal = Signal::Terminate, WorkerInterface\|WorkerGroupInterface ...$workers)` | Send a signal to targeted workers or all managed workers           |
+| `Worker`      | `wait()`                                                                                      | Wait for a single worker                                           |
+| `Worker`      | `kill()`                                                                                      | Signal a single worker                                             |
+| `Worker`      | `getOutput()` / `getErrorOutput()`                                                            | Read captured output, including partial output while still running |
+| `WorkerGroup` | `wait()`                                                                                      | Wait for every worker in the group                                 |
+| `WorkerGroup` | `kill()`                                                                                      | Signal every worker in the group                                   |
+| `WorkerGroup` | `getRunning()` / `getStopped()`                                                               | Inspect current group state                                        |
 
 ### Exceptions
 
-| Exception | Use case |
-|-----------|----------|
-| `FastForward\Fork\Exception\InvalidArgumentException` | Invalid worker count, foreign worker, foreign worker group |
-| `FastForward\Fork\Exception\LogicException` | Invalid control-flow usage, such as forking from a worker using the same manager |
-| `FastForward\Fork\Exception\RuntimeException` | Unsupported runtime, fork failure, wait failure, transport allocation failure |
-| `FastForward\Fork\Exception\ForkExceptionInterface` | Catch-all contract for library-specific exceptions |
+| Exception                                             | Use case                                                                         |
+|-------------------------------------------------------|----------------------------------------------------------------------------------|
+| `FastForward\Fork\Exception\InvalidArgumentException` | Invalid worker count, foreign worker, foreign worker group                       |
+| `FastForward\Fork\Exception\LogicException`           | Invalid control-flow usage, such as forking from a worker using the same manager |
+| `FastForward\Fork\Exception\RuntimeException`         | Unsupported runtime, fork failure, wait failure, transport allocation failure    |
+| `FastForward\Fork\Exception\ForkExceptionInterface`   | Catch-all contract for library-specific exceptions                               |
 
 ## 🔌 Integration
 
@@ -360,16 +361,16 @@ it is generally a poor fit for standard web SAPIs and unsupported on environment
 
 ## 📊 Comparison
 
-| Capability | `fast-forward/fork` | Manual `pcntl_*` orchestration |
-|------------|---------------------|--------------------------------|
-| Typed signals via enum | ✅ | ❌ |
-| Immutable worker groups | ✅ | ❌ |
-| Worker objects with state inspection | ✅ | ❌ |
-| Partial output capture | ✅ | ❌ |
-| PSR-3 logger integration | ✅ | ❌ |
-| Default signal propagation strategy | ✅ | ❌ |
-| Named library exceptions | ✅ | ❌ |
-| Ordered learning examples | ✅ | ❌ |
+| Capability                           | `fast-forward/fork` | Manual `pcntl_*` orchestration |
+|--------------------------------------|---------------------|--------------------------------|
+| Typed signals via enum               | ✅                  | ❌                             |
+| Immutable worker groups              | ✅                  | ❌                             |
+| Worker objects with state inspection | ✅                  | ❌                             |
+| Partial output capture               | ✅                  | ❌                             |
+| PSR-3 logger integration             | ✅                  | ❌                             |
+| Default signal propagation strategy  | ✅                  | ❌                             |
+| Named library exceptions             | ✅                  | ❌                             |
+| Ordered learning examples            | ✅                  | ❌                             |
 
 ## 🧪 Examples
 
