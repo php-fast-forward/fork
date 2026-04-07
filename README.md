@@ -1,21 +1,14 @@
 # Fast Forward Fork
 
+A PHP 8.3+ library for orchestrating forked workers with typed signals, immutable worker groups,
+captured worker output, and PSR-3 logging.
+
 [![PHP Version](https://img.shields.io/badge/php-^8.3-777BB4?logo=php&logoColor=white)](https://www.php.net/releases/)
 [![Tests](https://img.shields.io/github/actions/workflow/status/php-fast-forward/fork/tests.yml?logo=githubactions&logoColor=white&label=tests&color=22C55E)](https://github.com/php-fast-forward/fork/actions/workflows/tests.yml)
 [![Coverage](https://img.shields.io/badge/coverage-phpunit-4ADE80?logo=php&logoColor=white)](https://php-fast-forward.github.io/fork/coverage/index.html)
 [![Docs](https://img.shields.io/github/deployments/php-fast-forward/fork/github-pages?logo=readthedocs&logoColor=white&label=docs&labelColor=1E293B&color=38BDF8&style=flat)](https://php-fast-forward.github.io/fork/index.html)
 [![License](https://img.shields.io/github/license/php-fast-forward/fork?color=64748B)](LICENSE)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/php-fast-forward?logo=githubsponsors&logoColor=white&color=EC4899)](https://github.com/sponsors/php-fast-forward)
-
-A PHP 8.3+ library for orchestrating forked workers with typed signals, immutable worker groups,
-captured worker output, and PSR-3 logging.
-
-[![PHP Version](https://img.shields.io/badge/php-%5E8.3-777BB4.svg)](https://www.php.net/releases/)
-[![Packagist Version](https://img.shields.io/packagist/v/fast-forward/fork.svg)](https://packagist.org/packages/fast-forward/fork)
-[![Packagist Downloads](https://img.shields.io/packagist/dt/fast-forward/fork.svg)](https://packagist.org/packages/fast-forward/fork)
-[![License](https://img.shields.io/github/license/php-fast-forward/fork.svg)](LICENSE)
-[![Tests](https://github.com/php-fast-forward/fork/actions/workflows/tests.yml/badge.svg)](https://github.com/php-fast-forward/fork/actions/workflows/tests.yml)
-[![Reports](https://github.com/php-fast-forward/fork/actions/workflows/reports.yml/badge.svg)](https://github.com/php-fast-forward/fork/actions/workflows/reports.yml)
 
 `fast-forward/fork` wraps `pcntl_fork()` and related POSIX primitives in a small, strongly-typed API
 that is easier to reason about in real applications. It gives you a single manager for orchestration,
