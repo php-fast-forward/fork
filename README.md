@@ -1,5 +1,12 @@
 # Fast Forward Fork
 
+[![PHP Version](https://img.shields.io/badge/php-^8.3-777BB4?logo=php&logoColor=white)](https://www.php.net/releases/)
+[![Tests](https://img.shields.io/github/actions/workflow/status/php-fast-forward/fork/tests.yml?logo=githubactions&logoColor=white&label=tests&color=22C55E)](https://github.com/php-fast-forward/fork/actions/workflows/tests.yml)
+[![Coverage](https://img.shields.io/badge/coverage-phpunit-4ADE80?logo=php&logoColor=white)](https://php-fast-forward.github.io/fork/coverage/index.html)
+[![Docs](https://img.shields.io/github/deployments/php-fast-forward/fork/github-pages?logo=readthedocs&logoColor=white&label=docs&labelColor=1E293B&color=38BDF8&style=flat)](https://php-fast-forward.github.io/fork/index.html)
+[![License](https://img.shields.io/github/license/php-fast-forward/dev-tools?color=64748B)](LICENSE)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/php-fast-forward?logo=githubsponsors&logoColor=white&color=EC4899)](https://github.com/sponsors/php-fast-forward)
+
 A PHP 8.3+ library for orchestrating forked workers with typed signals, immutable worker groups,
 captured worker output, and PSR-3 logging.
 
