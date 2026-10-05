@@ -5,3 +5,4 @@
 /.gitattributes     export-ignore
 /.gitignore         export-ignore
 /.gitmodules        export-ignore
+/assets/brand/ export-ignore
