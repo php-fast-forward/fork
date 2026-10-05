@@ -1,7 +1,7 @@
 # Fast Forward Fork
 
 <p align="center">
-  <img src="docs/_static/mascot-banner.png" alt="Dash coordinating parallel worker consoles and collecting their results" width="840">
+  <img src="https://raw.githubusercontent.com/php-fast-forward/fork/6ddf86cca0a79775467f4678b7149c06a715d1c1/docs/_static/mascot-banner.png" alt="Dash coordinating parallel worker consoles and collecting their results" width="840">
 </p>
 
 A PHP 8.3+ library for orchestrating forked workers with typed signals, immutable worker groups,
