@@ -1,7 +1,7 @@
 # Fast Forward Fork
 
 <p align="center">
-  <img src="assets/brand/dash.png" alt="Dash, the PHP Fast Forward fox, wearing a purple hoodie" width="320">
+  <img src="docs/_static/mascot-banner.png" alt="Dash coordinating parallel worker consoles and collecting their results" width="840">
 </p>
 
 A PHP 8.3+ library for orchestrating forked workers with typed signals, immutable worker groups,
