@@ -6,10 +6,13 @@ on:
 
 permissions:
   contents: write
+  statuses: write
   pages: write
   id-token: write
 
 jobs:
   tests:
     uses: php-fast-forward/dev-tools/.github/workflows/tests.yml@main
+    with:
+      publish-required-statuses: true
     secrets: inherit
