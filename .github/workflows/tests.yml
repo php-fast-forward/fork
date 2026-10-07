@@ -5,14 +5,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   statuses: write
-  pages: write
-  id-token: write
 
 jobs:
   tests:
     uses: php-fast-forward/dev-tools/.github/workflows/tests.yml@main
     with:
-      publish-required-statuses: true
+      publish-required-statuses: ${{ github.actor != 'dependabot[bot]' }}
     secrets: inherit
