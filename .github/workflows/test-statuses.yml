@@ -3,7 +3,7 @@ name: Dependabot Test Statuses
 on:
   workflow_run:
     workflows: ["Fast Forward Test Suite"]
-    types: [completed]
+    types: [requested, in_progress, completed]
 
 permissions: {}
 
@@ -30,6 +30,7 @@ jobs:
           SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
           SOURCE_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
           SOURCE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_EVENT_ACTION: ${{ github.event.action }}
           EXPECTED_PHP_VERSIONS: '["8.3","8.4","8.5"]'
         run: |
           php <<'PHP'
@@ -65,7 +66,15 @@ jobs:
               || !is_string($headSha) || preg_match('/\A[0-9a-f]{40}\z/', $headSha) !== 1) {
               throw new RuntimeException('Invalid completion event identity.');
           }
-          $versions = json_decode(getenv('EXPECTED_PHP_VERSIONS'), true, 512, JSON_THROW_ON_ERROR);
+          $eventAction = getenv('SOURCE_EVENT_ACTION');
+          if (!is_string($eventAction) || !in_array($eventAction, ['requested', 'in_progress', 'completed'], true)) {
+              throw new RuntimeException('Invalid workflow lifecycle event.');
+          }
+          $versionList = getenv('EXPECTED_PHP_VERSIONS');
+          if (!is_string($versionList) || $versionList === '') {
+              throw new RuntimeException('A PHP version list is required.');
+          }
+          $versions = json_decode($versionList, true, 512, JSON_THROW_ON_ERROR);
           if (!is_array($versions) || $versions === [] || !array_is_list($versions)) {
               throw new RuntimeException('A non-empty PHP version list is required.');
           }
@@ -92,8 +101,15 @@ jobs:
               || !is_int($run['run_attempt'] ?? null) || $run['run_attempt'] < 1) {
               throw new RuntimeException('The API run does not match the expected test workflow.');
           }
-          if ((string) $run['run_attempt'] !== $attempt || ($run['status'] ?? null) !== 'completed') {
+          if ((string) $run['run_attempt'] !== $attempt) {
               echo "A newer attempt supersedes this completion; no statuses published.\n";
+              exit(0);
+          }
+          if (!in_array($run['status'] ?? null, ['queued', 'in_progress', 'requested', 'waiting', 'pending', 'completed'], true)) {
+              throw new RuntimeException('Unsupported workflow run status.');
+          }
+          if ($eventAction === 'completed' && $run['status'] !== 'completed') {
+              echo "The completed event no longer matches the current attempt state; no statuses published.\n";
               exit(0);
           }
 
@@ -125,6 +141,18 @@ jobs:
           }
           if ((string) $latestRuns[0]['id'] !== $runId) {
               echo "A newer run supersedes this completion; no statuses published.\n";
+              exit(0);
+          }
+
+          $targetUrl = getenv('GITHUB_SERVER_URL') . "/$repository/actions/runs/$runId";
+          if ($run['status'] !== 'completed') {
+              foreach ($versions as $version) {
+                  githubApi(['--method', 'POST', "repos/$repository/statuses/$headSha",
+                      '-f', 'state=pending',
+                      '-f', "context=Run Tests ($version)",
+                      '-f', "description=PHP $version matrix job is pending.",
+                      '-f', "target_url=$targetUrl"]);
+              }
               exit(0);
           }
 
@@ -161,7 +189,6 @@ jobs:
           }
 
           // Validate every version before the first write. No checkout, artifacts, caches or caller-produced results.
-          $targetUrl = getenv('GITHUB_SERVER_URL') . "/$repository/actions/runs/$runId";
           foreach ($results as [$version, $conclusion]) {
               githubApi(['--method', 'POST', "repos/$repository/statuses/$headSha",
                   '-f', 'state=' . ($conclusion === 'success' ? 'success' : 'failure'),
