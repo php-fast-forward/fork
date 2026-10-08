@@ -1,0 +1,288 @@
+name: Dependabot Test Statuses
+
+on:
+  workflow_run:
+    workflows: ["Fast Forward Test Suite"]
+    types: [requested, in_progress, completed]
+
+permissions: {}
+
+concurrency:
+  group: dependabot-test-statuses-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.actor.login == 'dependabot[bot]' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      statuses: write
+    steps:
+      - name: Mirror verified Dependabot test results
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          SOURCE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_EVENT_ACTION: ${{ github.event.action }}
+          EXPECTED_PHP_VERSIONS: '["8.3","8.4","8.5"]'
+        run: |
+          php <<'PHP'
+          <?php
+          declare(strict_types=1);
+
+          function githubApi(array $arguments): array
+          {
+              $process = proc_open(['gh', 'api', ...$arguments], [['pipe', 'r'], ['pipe', 'w'], STDERR], $pipes);
+              if (!is_resource($process)) {
+                  throw new RuntimeException('Cannot start the GitHub API client.');
+              }
+              fclose($pipes[0]);
+              $response = stream_get_contents($pipes[1]);
+              fclose($pipes[1]);
+              if (proc_close($process) !== 0 || $response === false) {
+                  throw new RuntimeException('GitHub API request failed.');
+              }
+              $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+              if (!is_array($data)) {
+                  throw new RuntimeException('Invalid GitHub API response.');
+              }
+              return $data;
+          }
+
+          function runIsCurrent(string $repository, string $runId, array $snapshot): bool
+          {
+              $current = githubApi(["repos/$repository/actions/runs/$runId"]);
+              foreach (['id', 'head_sha', 'event', 'name', 'path',
+                  'workflow_id', 'run_number', 'run_attempt', 'status', 'conclusion'] as $field) {
+                  if (($current[$field] ?? null) !== ($snapshot[$field] ?? null)) {
+                      echo "The source run changed before publication; no further statuses published.\n";
+                      return false;
+                  }
+              }
+              foreach (['repository' => 'full_name', 'head_repository' => 'full_name', 'actor' => 'login'] as $field => $key) {
+                  if (($current[$field][$key] ?? null) !== ($snapshot[$field][$key] ?? null)) {
+                      echo "The source run identity changed before publication; no further statuses published.\n";
+                      return false;
+                  }
+              }
+              return true;
+          }
+
+          $repository = getenv('GITHUB_REPOSITORY');
+          $runId = getenv('SOURCE_RUN_ID');
+          $attempt = getenv('SOURCE_RUN_ATTEMPT');
+          $headSha = getenv('SOURCE_HEAD_SHA');
+          if (!is_string($repository) || preg_match('~\A[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+\z~', $repository) !== 1
+              || !is_string($runId) || preg_match('/\A[1-9][0-9]*\z/', $runId) !== 1
+              || !is_string($attempt) || preg_match('/\A[1-9][0-9]*\z/', $attempt) !== 1
+              || !is_string($headSha) || preg_match('/\A[0-9a-f]{40}\z/', $headSha) !== 1) {
+              throw new RuntimeException('Invalid completion event identity.');
+          }
+          $eventAction = getenv('SOURCE_EVENT_ACTION');
+          if (!is_string($eventAction) || !in_array($eventAction, ['requested', 'in_progress', 'completed'], true)) {
+              throw new RuntimeException('Invalid workflow lifecycle event.');
+          }
+          $versionList = getenv('EXPECTED_PHP_VERSIONS');
+          if (!is_string($versionList) || $versionList === '') {
+              throw new RuntimeException('A PHP version list is required.');
+          }
+          $versions = json_decode($versionList, true, 512, JSON_THROW_ON_ERROR);
+          if (!is_array($versions) || $versions === [] || !array_is_list($versions)) {
+              throw new RuntimeException('A non-empty PHP version list is required.');
+          }
+          foreach ($versions as $version) {
+              if (!is_string($version) || preg_match('/\A[0-9]+\.[0-9]+\z/', $version) !== 1) {
+                  throw new RuntimeException('Invalid PHP version.');
+              }
+          }
+          if (count($versions) !== count(array_unique($versions))) {
+              throw new RuntimeException('Duplicate PHP version.');
+          }
+
+          $run = githubApi(["repos/$repository/actions/runs/$runId"]);
+          if ((string) ($run['id'] ?? '') !== $runId
+              || ($run['repository']['full_name'] ?? null) !== $repository
+              || ($run['head_repository']['full_name'] ?? null) !== $repository
+              || ($run['head_sha'] ?? null) !== $headSha
+              || ($run['event'] ?? null) !== 'push'
+              || ($run['actor']['login'] ?? null) !== 'dependabot[bot]'
+              || ($run['name'] ?? null) !== 'Fast Forward Test Suite'
+              || explode('@', $run['path'] ?? '')[0] !== '.github/workflows/tests.yml'
+              || !is_int($run['workflow_id'] ?? null) || $run['workflow_id'] < 1
+              || !is_int($run['run_number'] ?? null) || $run['run_number'] < 1
+              || !is_int($run['run_attempt'] ?? null) || $run['run_attempt'] < 1) {
+              throw new RuntimeException('The API run does not match the expected test workflow.');
+          }
+          if ((string) $run['run_attempt'] !== $attempt) {
+              echo "A newer attempt supersedes this completion; no statuses published.\n";
+              exit(0);
+          }
+          if (!in_array($run['status'] ?? null, ['queued', 'in_progress', 'requested', 'waiting', 'pending', 'completed'], true)) {
+              throw new RuntimeException('Unsupported workflow run status.');
+          }
+          if ($eventAction === 'completed' && $run['status'] !== 'completed') {
+              echo "The completed event no longer matches the current attempt state; no statuses published.\n";
+              exit(0);
+          }
+
+          $workflowId = $run['workflow_id'];
+          $pages = githubApi(['--paginate', '--slurp', "repos/$repository/actions/workflows/$workflowId/runs?head_sha=$headSha&event=push&per_page=100"]);
+          $matchingRuns = [];
+          foreach ($pages as $page) {
+              if (!is_array($page['workflow_runs'] ?? null)) {
+                  throw new RuntimeException('Malformed workflow run list.');
+              }
+              foreach ($page['workflow_runs'] as $candidate) {
+                  if (($candidate['head_sha'] ?? null) === $headSha && ($candidate['event'] ?? null) === 'push'
+                      && ($candidate['workflow_id'] ?? null) === $workflowId) {
+                      if (!is_int($candidate['run_number'] ?? null) || $candidate['run_number'] < 1
+                          || !is_int($candidate['id'] ?? null) || $candidate['id'] < 1) {
+                          throw new RuntimeException('Invalid matching run identity.');
+                      }
+                      $matchingRuns[] = $candidate;
+                  }
+              }
+          }
+          if ($matchingRuns === []) {
+              throw new RuntimeException('The source run is absent from the workflow run list.');
+          }
+          $latestNumber = max(array_column($matchingRuns, 'run_number'));
+          $latestRuns = array_values(array_filter($matchingRuns, static fn (array $candidate): bool => $candidate['run_number'] === $latestNumber));
+          if (count($latestRuns) !== 1) {
+              throw new RuntimeException('Ambiguous newest workflow run.');
+          }
+          if ((string) $latestRuns[0]['id'] !== $runId) {
+              echo "A newer run supersedes this completion; no statuses published.\n";
+              exit(0);
+          }
+
+          $targetUrl = getenv('GITHUB_SERVER_URL') . "/$repository/actions/runs/$runId";
+          if ($run['status'] !== 'completed') {
+              foreach ($versions as $version) {
+                  if (!runIsCurrent($repository, $runId, $run)) {
+                      exit(0);
+                  }
+                  githubApi(['--method', 'POST', "repos/$repository/statuses/$headSha",
+                      '-f', 'state=pending',
+                      '-f', "context=Run Tests ($version)",
+                      '-f', "description=PHP $version matrix job is pending.",
+                      '-f', "target_url=$targetUrl"]);
+              }
+              exit(0);
+          }
+
+          $pages = githubApi(['--paginate', '--slurp', "repos/$repository/actions/runs/$runId/jobs?filter=all&per_page=100"]);
+          $jobs = [];
+          foreach ($pages as $page) {
+              if (!is_array($page['jobs'] ?? null)) {
+                  throw new RuntimeException('Malformed workflow job list.');
+              }
+              $jobs = array_merge($jobs, $page['jobs']);
+          }
+          $sourceFailed = in_array($run['conclusion'] ?? null,
+              ['failure', 'cancelled', 'timed_out', 'action_required', 'startup_failure', 'stale'], true);
+          $requireCurrentAttempt = false;
+          $blockedReason = null;
+          $currentJobsObserved = false;
+          $currentControlJobs = [];
+          foreach ($jobs as $job) {
+              if (!is_array($job)) {
+                  throw new RuntimeException('Invalid workflow job record.');
+              }
+              $jobName = $job['name'] ?? null;
+              if (($job['run_attempt'] ?? null) === $run['run_attempt']
+                  && (string) ($job['run_id'] ?? '') === $runId
+                  && (in_array($jobName, ['tests / Resolve PHP Version', 'tests / Run Tests', 'tests / Dependency Health'], true)
+                      || (is_string($jobName) && preg_match('/\Atests \/ Run Tests \([^)]+\)\z/', $jobName) === 1))) {
+                  $currentJobsObserved = true;
+              }
+              if (is_string($jobName) && preg_match('/\Atests \/ Run Tests \(([^)]+)\)\z/', $jobName, $lane) === 1
+                  && !in_array($lane[1], $versions, true)) {
+                  throw new RuntimeException('Observed PHP matrix differs from the explicitly configured version list.');
+              }
+              if (!in_array($jobName, ['tests / Resolve PHP Version', 'tests / Run Tests'], true)) {
+                  continue;
+              }
+              if ((string) ($job['run_id'] ?? '') !== $runId
+                  || !is_int($job['run_attempt'] ?? null) || $job['run_attempt'] < 1
+                  || $job['run_attempt'] > $run['run_attempt']) {
+                  throw new RuntimeException('Invalid test control job attempt.');
+              }
+              if ($job['run_attempt'] !== $run['run_attempt']) {
+                  continue;
+              }
+              if (isset($currentControlJobs[$jobName])) {
+                  throw new RuntimeException('Ambiguous current test control job.');
+              }
+              $currentControlJobs[$jobName] = true;
+              if (($job['status'] ?? null) !== 'completed'
+                  || !is_string($job['conclusion'] ?? null)
+                  || preg_match('/\A[a-z_]+\z/', $job['conclusion']) !== 1) {
+                  throw new RuntimeException('Incomplete test control job result.');
+              }
+              if ($jobName === 'tests / Resolve PHP Version') {
+                  $requireCurrentAttempt = true;
+              }
+              if ($job['conclusion'] !== 'success') {
+                  $blockedReason = 'test_control_' . $job['conclusion'];
+              }
+          }
+          if ($sourceFailed && !$currentJobsObserved) {
+              $blockedReason = 'source_' . $run['conclusion'];
+          }
+          $results = [];
+          foreach ($versions as $version) {
+              $expectedName = "tests / Run Tests ($version)";
+              $matches = array_values(array_filter($jobs, static fn (array $job): bool => ($job['name'] ?? null) === $expectedName));
+              if ($matches === []) {
+                  if ($sourceFailed || $blockedReason !== null) {
+                      $results[] = [$version, $blockedReason ?? 'source_' . $run['conclusion']];
+                      continue;
+                  }
+                  throw new RuntimeException("Missing test job for PHP $version.");
+              }
+              foreach ($matches as $job) {
+                  if ((string) ($job['run_id'] ?? '') !== $runId
+                      || !is_int($job['run_attempt'] ?? null) || $job['run_attempt'] < 1
+                      || $job['run_attempt'] > $run['run_attempt']) {
+                      throw new RuntimeException("Invalid test job attempt for PHP $version.");
+                  }
+              }
+              $latestAttempt = max(array_column($matches, 'run_attempt'));
+              $latest = array_values(array_filter($matches, static fn (array $job): bool => $job['run_attempt'] === $latestAttempt));
+              if (count($latest) !== 1 || ($latest[0]['status'] ?? null) !== 'completed'
+                  || !is_string($latest[0]['conclusion'] ?? null)
+                  || preg_match('/\A[a-z_]+\z/', $latest[0]['conclusion']) !== 1) {
+                  throw new RuntimeException("Incomplete or ambiguous test result for PHP $version.");
+              }
+              if ($blockedReason !== null) {
+                  $results[] = [$version, $blockedReason];
+              } elseif ($requireCurrentAttempt && $latestAttempt !== $run['run_attempt']) {
+                  if (!$sourceFailed) {
+                      throw new RuntimeException("Missing current-attempt test job for PHP $version.");
+                  }
+                  $results[] = [$version, 'source_' . $run['conclusion']];
+              } else {
+                  $results[] = [$version, $latest[0]['conclusion']];
+              }
+          }
+
+          // Validate every version before the first write. No checkout, artifacts, caches or caller-produced results.
+          foreach ($results as [$version, $conclusion]) {
+              if (!runIsCurrent($repository, $runId, $run)) {
+                  exit(0);
+              }
+              githubApi(['--method', 'POST', "repos/$repository/statuses/$headSha",
+                  '-f', 'state=' . ($conclusion === 'success' ? 'success' : 'failure'),
+                  '-f', "context=Run Tests ($version)",
+                  '-f', "description=PHP $version matrix job result: $conclusion.",
+                  '-f', "target_url=$targetUrl"]);
+          }
+          PHP
