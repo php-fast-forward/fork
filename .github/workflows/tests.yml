@@ -5,10 +5,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  # Ceiling for the checkout-free status publisher; test jobs retain read-only tokens.
-  contents: read
-  actions: read
-  statuses: write
+  contents: read # Read source; matrix jobs retain read-only tokens.
+  actions: read # Allow the checkout-free publisher to inspect matrix job results.
+  statuses: write # Caller ceiling; only isolated callee publishers request this permission.
 
 jobs:
   tests:
