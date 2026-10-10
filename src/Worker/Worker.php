@@ -25,7 +25,6 @@ use FastForward\Fork\Manager\ForkManagerInterface;
 use FastForward\Fork\Signal\Signal;
 use Psr\Log\LoggerInterface;
 use Throwable;
-
 use function error_reporting;
 use function getmypid;
 use function max;
@@ -446,6 +445,6 @@ final readonly class Worker implements WorkerInterface
      */
     private function isNoSuchProcessError(int $error): bool
     {
-        return (\defined('POSIX_ESRCH') ? \POSIX_ESRCH : self::NO_SUCH_PROCESS_ERROR) === $error;
+        return (\defined('POSIX_ESRCH') ? \constant('POSIX_ESRCH') : self::NO_SUCH_PROCESS_ERROR) === $error;
     }
 }

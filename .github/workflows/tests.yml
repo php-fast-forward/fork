@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  # Ceiling for the checkout-free status publisher; test jobs retain read-only tokens.
   contents: read
   actions: read
   statuses: write
@@ -14,4 +15,3 @@ jobs:
     uses: php-fast-forward/dev-tools/.github/workflows/tests.yml@main
     with:
       publish-required-statuses: ${{ github.actor != 'dependabot[bot]' }}
-    secrets: inherit

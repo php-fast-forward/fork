@@ -30,10 +30,12 @@ use FastForward\Fork\Tests\Support\SpyLogger;
 use FastForward\Fork\Worker\Worker;
 use FastForward\Fork\Worker\WorkerInterface;
 use FastForward\Fork\Worker\WorkerState;
+use FastForward\Fork\Worker\WorkerGroup;
+use FastForward\Fork\Worker\WorkerOutputTransport;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-
 use function getmypid;
 use function pcntl_fork;
 use function posix_getpid;
@@ -41,6 +43,12 @@ use function posix_kill;
 use function usleep;
 
 #[CoversClass(ForkManager::class)]
+#[UsesClass(InvalidArgumentException::class)]
+#[UsesClass(LogicException::class)]
+#[UsesClass(Worker::class)]
+#[UsesClass(WorkerGroup::class)]
+#[UsesClass(WorkerState::class)]
+#[UsesClass(WorkerOutputTransport::class)]
 final class ForkManagerTest extends TestCase
 {
     use ReflectsNonPublicMembers;
