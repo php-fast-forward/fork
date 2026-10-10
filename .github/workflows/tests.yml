@@ -5,11 +5,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read # Read source; matrix jobs retain read-only tokens.
+  actions: read # Allow the checkout-free publisher to inspect matrix job results.
+  statuses: write # Caller ceiling; only isolated callee publishers request this permission.
 
 jobs:
   tests:
     uses: php-fast-forward/dev-tools/.github/workflows/tests.yml@main
-    secrets: inherit
+    with:
+      publish-required-statuses: ${{ github.actor != 'dependabot[bot]' }}
