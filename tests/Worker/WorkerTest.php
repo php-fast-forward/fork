@@ -30,14 +30,15 @@ use FastForward\Fork\Worker\Worker;
 use FastForward\Fork\Worker\WorkerGroupInterface;
 use FastForward\Fork\Worker\WorkerInterface;
 use FastForward\Fork\Worker\WorkerState;
+use FastForward\Fork\Worker\WorkerOutputTransport;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Log\LoggerInterface;
-
 use function getmypid;
 use function pcntl_fork;
 use function pcntl_waitpid;
@@ -46,6 +47,9 @@ use function trigger_error;
 use function usleep;
 
 #[CoversClass(Worker::class)]
+#[UsesClass(LogicException::class)]
+#[UsesClass(WorkerState::class)]
+#[UsesClass(WorkerOutputTransport::class)]
 final class WorkerTest extends TestCase
 {
     use ProphecyTrait;

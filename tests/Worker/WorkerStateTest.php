@@ -22,16 +22,18 @@ use FastForward\Fork\Signal\Signal;
 use FastForward\Fork\Tests\Support\ReflectsNonPublicMembers;
 use FastForward\Fork\Tests\Support\SpyLogger;
 use FastForward\Fork\Worker\WorkerState;
+use FastForward\Fork\Worker\WorkerOutputTransport;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-
 use function pcntl_fork;
 use function pcntl_waitpid;
 use function posix_kill;
 use function usleep;
 
 #[CoversClass(WorkerState::class)]
+#[UsesClass(WorkerOutputTransport::class)]
 final class WorkerStateTest extends TestCase
 {
     use ReflectsNonPublicMembers;
