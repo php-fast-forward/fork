@@ -1,5 +1,9 @@
 # Fast Forward Fork
 
+<p align="center">
+  <img src="docs/_static/mascot-banner.png" alt="Dash coordinating parallel worker consoles and collecting their results" width="840">
+</p>
+
 A PHP 8.3+ library for orchestrating forked workers with typed signals, immutable worker groups,
 captured worker output, and PSR-3 logging.
 
