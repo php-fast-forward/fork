@@ -48,6 +48,7 @@
             "fast-forward/dev-tools": true,
             "phpdocumentor/shim": true,
             "phpro/grumphp": true,
+            "phpro/grumphp-shim": true,
             "pyrech/composer-changelogs": true
         },
         "platform": {
