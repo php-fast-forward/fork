@@ -11,4 +11,4 @@ permissions:
 
 jobs:
   wiki:
-    uses: php-fast-forward/dev-tools/.github/workflows/wiki-direct.yml@a286666dfca2300fffca1ab0d3517b6294ec2c4e # dev-tools#366
+    uses: php-fast-forward/dev-tools/.github/workflows/wiki-direct.yml@c44339acd9b09b1a7f2249cceb8928e5e93cf42b # dev-tools#366
