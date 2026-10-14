@@ -1,17 +1,14 @@
-name: "Fast Forward Wiki Update"
+name: Fast Forward Wiki Update
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: write # Ceiling for the isolated publisher; generation remains read-only.
 
 jobs:
   wiki:
-    uses: php-fast-forward/dev-tools/.github/workflows/wiki.yml@main
-    secrets: inherit
+    uses: php-fast-forward/dev-tools/.github/workflows/wiki-direct.yml@c44339acd9b09b1a7f2249cceb8928e5e93cf42b # dev-tools#366
