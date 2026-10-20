@@ -13,10 +13,14 @@ cpx --skip-local fast-forward/changelog check --since=origin/main --no-interacti
 
 Select the category and semantic impact that describe the change. Keep published
 history intact; pending notes belong in fragments rather than an `Unreleased`
-section. The project skill is installed at
-[`.agents/skills/fast-forward-changelog/SKILL.md`](.agents/skills/fast-forward-changelog/SKILL.md).
-Check its local integrity with
-`cpx --skip-local fast-forward/changelog skill:install --check --json`.
+section.
+
+Run `composer install` to restore the project skill into
+`.agents/skills/fast-forward-changelog` through the development-only `llm/skills`
+plugin and the reviewed GitHub source in `skills.json`. Generated skill files
+are ignored by Git. Use `composer skills:show` to inspect the source and
+`composer skills:update --from=github` for an explicit refresh within its
+configured version range. Review `skills.json` before changing that range.
 
 The [workflow](.github/workflows/changelog.yml) follows the maintainer-selected
 `v0` release channel and validates PR notes,
