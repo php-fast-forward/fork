@@ -18,7 +18,8 @@ section. The project skill is installed at
 Check its local integrity with
 `cpx --skip-local fast-forward/changelog skill:install --check --json`.
 
-The pinned [workflow](.github/workflows/changelog.yml) validates PR notes,
+The [workflow](.github/workflows/changelog.yml) follows the maintainer-selected
+`v0` release channel and validates PR notes,
 maintains PR feedback and prepares one version PR on `changelog/version`.
 Review that PR's version, history and consumed fragments before merging.
 After that approved version PR is merged into `main`, automatic publication
