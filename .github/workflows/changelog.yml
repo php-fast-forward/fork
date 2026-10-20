@@ -39,5 +39,5 @@ jobs:
     uses: php-fast-forward/changelog/.github/workflows/changelog.yml@85474de5a16bb08f83c9f30e0ed72f331a210f07 # v0.3.0
     with:
       source: github
-      version-pr-title: 'chore(release): fork {current_version} → {next_version}'
+      version-pr-title: 'chore(release): fast-forward/fork v{current_version} → v{next_version}'
       base-branch: main
