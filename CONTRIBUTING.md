@@ -23,3 +23,7 @@ maintains PR feedback and prepares one version PR on `changelog/version`.
 Review that PR's version, history and consumed fragments before merging.
 After that approved version PR is merged into `main`, automatic publication
 creates its version tag and GitHub Release. The workflow never merges PRs.
+
+Historical notes are imported from GitHub Releases, preserving the published
+descriptions when the first central changelog is prepared. Empty release bodies
+still need editorial review; no PR attribution is inferred from prose alone.
