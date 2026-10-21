@@ -402,6 +402,8 @@ See [LICENSE](LICENSE) for details.
 
 Issues, ideas, and pull requests are welcome.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for changelog fragments and the release-review flow.
+
 Recommended local checks:
 
 ```bash
