@@ -432,3 +432,12 @@ composer dev-tools:fix
 
 Keywords for discoverability: PHP worker pool, `pcntl_fork` wrapper, POSIX signal handling, process manager,
 parallel CLI jobs, worker orchestration, PSR-3 logging, Fast Forward PHP.
+
+## Consumer agent skill
+
+The package includes [fast-forward-fork](resources/skills/fast-forward-fork/SKILL.md) for application integration.
+It supports `fast-forward/fork:^1.1`; inspect the installed version.
+See [skill installation and lifecycle](resources/skills/fast-forward-fork/references/installation.md) for
+optional project synchronization with `llm/skills ^1.15`, guarded manual
+project/global copies and a pinned Skills CLI alternative. Shipping files does
+not install tooling or activate the skill in an agent session.
