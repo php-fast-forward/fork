@@ -5,3 +5,4 @@ tmp/
 vendor/
 composer.lock
 *.cache
+/.agents/

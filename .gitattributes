@@ -6,3 +6,7 @@
 /.gitignore         export-ignore
 /.gitmodules        export-ignore
 /README*.md export-ignore
+/.agents/ export-ignore
+/.changelog/ export-ignore
+/CONTRIBUTING.md export-ignore
+/skills.json export-ignore
