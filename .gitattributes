@@ -10,3 +10,4 @@
 /.changelog/ export-ignore
 /CONTRIBUTING.md export-ignore
 /skills.json export-ignore
+/.php-cs-fixer.dist.php export-ignore
