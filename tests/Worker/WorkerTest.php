@@ -39,6 +39,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Log\LoggerInterface;
+
 use function getmypid;
 use function pcntl_fork;
 use function pcntl_waitpid;
@@ -415,8 +416,6 @@ final class WorkerTest extends TestCase
      * @param WorkerState $state
      * @param callable $callback
      * @param LoggerInterface|null $logger
-     *
-     * @return Worker
      */
     private function createWorker(
         ForkManagerInterface $manager,
