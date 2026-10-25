@@ -25,6 +25,7 @@ use FastForward\Fork\Manager\ForkManagerInterface;
 use FastForward\Fork\Signal\Signal;
 use Psr\Log\LoggerInterface;
 use Throwable;
+
 use function error_reporting;
 use function getmypid;
 use function max;

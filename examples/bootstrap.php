@@ -16,7 +16,7 @@ declare(strict_types=1);
  * @see       https://datatracker.ietf.org/doc/html/rfc2119
  */
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/Support/ExampleConsole.php';
 require_once __DIR__ . '/Support/ExampleLogger.php';
 require_once __DIR__ . '/Support/ExampleRuntime.php';
