@@ -10,6 +10,15 @@ updates:
     labels:
       - "composer"
       - "dependencies"
+    groups:
+      composer-production:
+        dependency-type: production
+        patterns:
+          - "*"
+      composer-development:
+        dependency-type: development
+        patterns:
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -21,3 +30,7 @@ updates:
     labels:
       - "github-actions"
       - "continuous-integration"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
